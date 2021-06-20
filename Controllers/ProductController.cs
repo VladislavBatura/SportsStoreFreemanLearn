@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using SportsStore.Models.Interfaces;
+using SportsStore.Models.ViewModels;
 
 namespace SportsStore.Controllers
 {
@@ -17,10 +19,20 @@ namespace SportsStore.Controllers
             _repository = repository;
         }
 
-        public ViewResult List(int productPage = 1) => View(_repository.Products
-            .OrderBy(p => p.ProductId)
-            .Skip((productPage - 1) * PageSize)
-            .Take(PageSize)); //упрощение конструкции вызова представления
+        public ViewResult List(int productPage = 1) => View(new ProductListViewModel
+        {
+            Products = _repository.Products
+                .OrderBy(p => p.ProductId)
+                .Skip((productPage - 1) * PageSize)
+                .Take(PageSize),
+            PagingInfo = new PagingInfo
+            {
+                CurrentPage = productPage,
+                ItemsPerPage = PageSize,
+                TotalItems = _repository.Products.Count()
+            }
+        });
+
 
     }
 }
