@@ -19,19 +19,25 @@ namespace SportsStore.Controllers
             _repository = repository;
         }
 
-        public ViewResult List(int productPage = 1) => View(new ProductListViewModel
-        {
-            Products = _repository.Products
-                .OrderBy(p => p.ProductId)
-                .Skip((productPage - 1) * PageSize)
-                .Take(PageSize),
-            PagingInfo = new PagingInfo
+        public ViewResult List(string category, int productPage = 1)
+            => View(new ProductListViewModel
             {
-                CurrentPage = productPage,
-                ItemsPerPage = PageSize,
-                TotalItems = _repository.Products.Count()
-            }
-        });
+                Products = _repository.Products
+                    .Where(p => category == null || p.Category == category)
+                    .OrderBy(p => p.ProductId)
+                    .Skip((productPage - 1) * PageSize)
+                    .Take(PageSize),
+                PagingInfo = new PagingInfo
+                {
+                    CurrentPage = productPage,
+                    ItemsPerPage = PageSize,
+                    TotalItems = category == null ?
+                        _repository.Products.Count() :
+                        _repository.Products.Where(e =>
+                            e.Category == category).Count()
+                },
+                CurrentCategory = category
+            });
 
 
     }
